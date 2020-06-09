@@ -1,23 +1,42 @@
 #!/bin/bash
 # Warn when visiting a fraudulent website
-defaults write com.apple.Safari WarnAboutFraudulentWebsites false
+#defaults write com.apple.Safari WarnAboutFraudulentWebsites false
 
 # Block pop-up windows
-defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool false
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool false
+#defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool false
+#defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool false
 
-tell application "Safari" to activate
-delay 2
+use AppleScript version "2.4" -- Yosemite (10.10) or later
+use scripting additions
+
+tell application "Safari"
+    activate
+end tell
+
 tell application "System Events" to tell process "Safari"
+    click button 1 of window 1
+    delay 0.5
     keystroke "," using command down
-    tell window 1
-        delay 3
-        click button "Privacy" of toolbar 1
-        delay 3
-        click button 2 of group 1 of group 1
-        delay 1
-        click button "Remove Now" of sheet 1
-
-    end tell
-    keystroke "w" using command down
+    delay 1
+    click button "Privacy" of toolbar 1 of window 1
+    delay 0.5
+    click button "Manage Website Data…" of group 1 of group 1 of window "Privacy"
+    delay 3
+    if button "Remove All" of sheet 1 of window "Privacy" is enabled then
+        try
+            click button "Remove All" of sheet 1 of window "Privacy"
+            delay 0.5
+            keystroke tab
+            delay 0.5
+            keystroke return
+            delay 2
+            click button "Done" of sheet 1 of window "Privacy"
+            delay 0.5
+        on error errMsg
+            click button "Done" of sheet 1 of window "Privacy"
+        end try
+    else
+        click button "Done" of sheet 1 of window "Privacy"
+    end if
+    click button 1 of window 1
 end tell
